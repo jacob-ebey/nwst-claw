@@ -7,6 +7,7 @@
 
 <style>
   video {
+    position: static;
     display: block;
     height: 33%;
     width: 100%;
