@@ -65,10 +65,12 @@
     width: 120px;
   }
 
-  .flavor-finder-submit {
-    display: flex;
-    align-items: center;
-    width: auto !important;
+  @media (min-width: 1022px) {
+    .flavor-finder-submit {
+      display: flex;
+      align-items: center;
+      width: auto !important;
+    }
   }
 
   #flavor-list {
