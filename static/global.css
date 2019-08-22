@@ -2709,3 +2709,7 @@ footer .footer-social-icons-container .sprite-pinterest {
 .browse-jobs a:visited {
 	color: #fff;
 }
+
+body {
+  background-color: transparent;
+}

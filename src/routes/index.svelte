@@ -1,8 +1,185 @@
 <script>
+  import { onMount } from "svelte";
+
   import Content from "../components/Content.svelte";
   import HeaderImage from "../components/HeaderImage.svelte";
 
   import { createLoginCallback } from "../auth";
+
+  async function googleMap(element) {
+    const maps = (await import("google-maps")).default;
+
+    maps.KEY = "AIzaSyB93xEuws0Lm37TmcBj5mc7SYj8uMGyHCo";
+    maps.load(google => {
+      const styledMapType = new google.maps.StyledMapType([
+        {
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#f5f5f5"
+            }
+          ]
+        },
+        {
+          elementType: "labels.icon",
+          stylers: [
+            {
+              visibility: "off"
+            }
+          ]
+        },
+        {
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#616161"
+            }
+          ]
+        },
+        {
+          elementType: "labels.text.stroke",
+          stylers: [
+            {
+              color: "#f5f5f5"
+            }
+          ]
+        },
+        {
+          featureType: "administrative.land_parcel",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#bdbdbd"
+            }
+          ]
+        },
+        {
+          featureType: "poi",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#eeeeee"
+            }
+          ]
+        },
+        {
+          featureType: "poi",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#757575"
+            }
+          ]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#e5e5e5"
+            }
+          ]
+        },
+        {
+          featureType: "poi.park",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#9e9e9e"
+            }
+          ]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#ffffff"
+            }
+          ]
+        },
+        {
+          featureType: "road.arterial",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#757575"
+            }
+          ]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#dadada"
+            }
+          ]
+        },
+        {
+          featureType: "road.highway",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#616161"
+            }
+          ]
+        },
+        {
+          featureType: "road.local",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#9e9e9e"
+            }
+          ]
+        },
+        {
+          featureType: "transit.line",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#e5e5e5"
+            }
+          ]
+        },
+        {
+          featureType: "transit.station",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#eeeeee"
+            }
+          ]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [
+            {
+              color: "#c9c9c9"
+            }
+          ]
+        },
+        {
+          featureType: "water",
+          elementType: "labels.text.fill",
+          stylers: [
+            {
+              color: "#9e9e9e"
+            }
+          ]
+        }
+      ]);
+      const map = new google.maps.Map(element, {
+        center: { lat: 47.9, lng: -123.336588 },
+        zoom: 8
+      });
+      map.mapTypes.set("styled_map", styledMapType);
+      map.setMapTypeId("styled_map");
+    });
+  }
+
   let loggedIn = false;
 
   const login = createLoginCallback(res => {
@@ -37,8 +214,10 @@
     width: 100%;
   }
 
-  .find-text {
+  .find-text, .animation-element-container-map {
+    background-color: #fff;
     font-size: 29px !important;
+    height: auto !important;
   }
 
   .find-white-claw-btn {
@@ -65,6 +244,30 @@
     width: 120px;
   }
 
+  .flavor-map-container,
+  .map {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+
+  .flavor-map-search-block-container,
+  .flavor-map-search-block-container-inner,
+  .find-text {
+    pointer-events: none;
+  }
+
+  form,
+  .flavor-map-container,
+  #flavor-finder-form,
+  #flavor-list {
+    pointer-events: all;
+  }
+
+  :global(.gmnoprint) {
+    display: none !important;
+  }
+
   @media (min-width: 1022px) {
     .flavor-finder-submit {
       display: flex;
@@ -78,6 +281,8 @@
   }
 
   #locator-container {
+    background: transparent !important;
+    position: relative;
     padding-bottom: 0;
   }
 
@@ -219,11 +424,10 @@
   style={loggedIn && 'height: 836px;'}>
   {#if loggedIn}
     <div
-      class="flavor-map-container animation-element-container bounce-up in-view">
-      <div id="map" />
-    </div>
+      class="flavor-map-container animation-element-container bounce-up in-view"
+      use:googleMap />
   {/if}
-  <div class="animation-element-container bounce-up in-view">
+  <div class="animation-element-container animation-element-container-map bounce-up in-view">
     <div class="flavor-map-search-block-container animation-element">
       <div class="flavor-map-search-block-container-inner mx-auto">
         <h1 class="text-center text-lg-left find-text">
@@ -233,16 +437,16 @@
         <form id="flavor-finder-form">
           <div class="wrapper clearfix">
             {#if !loggedIn}
-              <!-- <button on:click={login} class="flavor-finder-submit mobile-hide">
+              <button on:click={login} class="flavor-finder-submit mobile-hide">
                 Login
-              </button> -->
-              <a
+              </button>
+              <!-- <a
                 rel="noopener noreferrer"
                 target="_blank"
                 href="https://www.facebook.com/groups/NWSTA/"
                 class="flavor-finder-submit mobile-hide">
                 ON FACEBOOK
-              </a>
+              </a> -->
             {:else}
               <input
                 placeholder="Enter Zip"
@@ -258,16 +462,16 @@
           </div>
           <div id="search-options" class="desktop-hide">
             {#if !loggedIn}
-              <!-- <button on:click={login} class="flavor-mobile-submit">
+              <button on:click={login} class="flavor-mobile-submit">
                 Login
-              </button> -->
-              <a
+              </button>
+              <!-- <a
                 rel="noopener noreferrer"
                 target="_blank"
                 href="https://www.facebook.com/groups/NWSTA/"
                 class="flavor-mobile-submit mobile-show">
                 ON FACEBOOK
-              </a>
+              </a> -->
             {:else}
               <button class="flavor-mobile-submit">Search</button>
               <span class="button-breaker">or</span>
@@ -302,6 +506,108 @@
                   1600 SW HOLDEN ST 98106
                   <br />
                   (206) 763-1415
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
+                </p>
+                <span class="address-launcher">Go</span>
+              </a>
+            </div>
+            <div class="business clearfix">
+              <a
+                id="marker-list-1"
+                data-target="marker-1"
+                class="clearfix any-flavor"
+                href="//maps.google.com/maps?saddr=My+Location&amp;daddr=1513%20SW%20HOLDEN%20ST%2098106"
+                target="_blank">
+                <p class="address-details">
+                  <strong>SEA MART</strong>
+                  <br />
+                  1513 SW HOLDEN ST 98106
+                  <br />
+                  (206) 766-9669
                 </p>
                 <span class="address-launcher">Go</span>
               </a>

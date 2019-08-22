@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "compression": "^1.7.1",
+    "google-maps": "^3.3.0",
     "polka": "next",
     "sirv": "^0.4.0"
   },
